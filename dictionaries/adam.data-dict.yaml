@@ -1,0 +1,287 @@
+glossary:
+  - term: TEAE
+    definition: >
+      Treatment-emergent adverse event. An adverse event with onset on or
+      after the first dose of study treatment, flagged with TRTEMFL = 'Y'.
+  - term: SAE
+    definition: >
+      Serious adverse event, flagged with AESER = 'Y'. Death, life-threatening
+      event, hospitalization, disability, or congenital anomaly.
+  - term: safety population
+    definition: >
+      All randomized subjects who received at least one dose of study
+      treatment, flagged with SAFFL = 'Y'. The default analysis population
+      for all safety summaries.
+  - term: SOC
+    definition: >
+      MedDRA primary system organ class (AESOC), the highest level of the
+      MedDRA hierarchy used for adverse event grouping.
+  - term: preferred term
+    definition: >
+      MedDRA dictionary-derived term for an adverse event (AEDECOD).
+
+tables:
+  - name: ADSL
+    description: >
+      Subject-level analysis dataset (ADaM ADSL). One row per subject.
+      Contains treatment assignment, demographics, population flags, and
+      disposition for the CDISC pilot study of Xanomeline transdermal
+      therapeutic system in Alzheimer's disease.
+    columns:
+      - name: USUBJID
+        type: string
+        description: Unique subject identifier.
+      - name: TRT01A
+        type: string
+        description: >
+          Actual treatment for period 01. Values: 'Placebo',
+          'Xanomeline Low Dose', 'Xanomeline High Dose'. Use this for
+          by-arm safety summaries.
+      - name: TRT01P
+        type: string
+        description: Planned treatment for period 01.
+      - name: SAFFL
+        type: string
+        description: Safety population flag ('Y'/'N').
+      - name: AGE
+        type: number
+        description: Age in years at baseline.
+      - name: AGEGR1
+        type: string
+        description: Pooled age group.
+      - name: SEX
+        type: string
+        description: Sex ('M'/'F').
+      - name: RACE
+        type: string
+        description: Race.
+      - name: EOSSTT
+        type: string
+        description: End-of-study status (e.g., COMPLETED, DISCONTINUED).
+      - name: TRTSDT
+        type: date
+        description: Date of first exposure to treatment.
+      - name: TRTEDT
+        type: date
+        description: Date of last exposure to treatment.
+    definitions:
+      - name: safety_population
+        label: Safety population
+        description: Subjects who received at least one dose of study treatment.
+        expr: SAFFL = 'Y'
+      - name: n_subjects
+        label: Number of subjects
+        description: Count of subjects (ADSL is one row per subject).
+        expr: COUNT(USUBJID)
+
+  - name: ADAE
+    description: >
+      Adverse events analysis dataset (ADaM ADAE). One row per adverse
+      event record. Includes MedDRA coding, seriousness, severity,
+      treatment-emergent flag, and merged subject-level variables.
+    columns:
+      - name: USUBJID
+        type: string
+        description: Unique subject identifier; joins to adsl.
+      - name: AESEQ
+        type: number
+        description: Sequence number uniquely identifying an AE record within a subject.
+      - name: TRT01A
+        type: string
+        description: Actual treatment arm (same values as adsl.TRT01A).
+      - name: AETERM
+        type: string
+        description: Reported (verbatim) term for the adverse event.
+      - name: AEDECOD
+        type: string
+        description: MedDRA dictionary-derived preferred term.
+      - name: AESOC
+        type: string
+        description: MedDRA primary system organ class.
+      - name: AESEV
+        type: string
+        description: Severity/intensity (MILD, MODERATE, SEVERE).
+      - name: AESER
+        type: string
+        description: Serious event flag ('Y'/'N').
+      - name: TRTEMFL
+        type: string
+        description: Treatment-emergent analysis flag ('Y' or missing).
+      - name: ASTDY
+        type: number
+        description: >
+          Analysis start relative day. Day 1 is the first day of study
+          treatment; there is no day 0.
+      - name: AENDY
+        type: number
+        description: Analysis end relative day.
+      - name: SAFFL
+        type: string
+        description: Safety population flag ('Y'/'N').
+    definitions:
+      - name: treatment_emergent
+        label: Treatment-emergent AE
+        description: >
+          Adverse event with onset on or after first dose of study
+          treatment, per the SAP TEAE rule.
+        expr: TRTEMFL = 'Y'
+      - name: serious_ae
+        label: Serious adverse event
+        description: Adverse event meeting ICH seriousness criteria.
+        expr: AESER = 'Y'
+      - name: n_ae_records
+        label: Number of adverse event records
+        description: >
+          Count of adverse event records. Combine with treatment_emergent
+          or serious_ae to count TEAEs or serious AEs.
+        expr: COUNT(AESEQ)
+
+  - name: ADLB
+    description: >
+      Laboratory analysis dataset (ADaM ADLB / BDS). One row per subject,
+      parameter, and analysis timepoint. Includes chemistry, hematology,
+      and urinalysis parameters with reference-range indicators and
+      toxicity grades.
+    columns:
+      - name: USUBJID
+        type: string
+        description: Unique subject identifier; joins to adsl.
+      - name: TRTA
+        type: string
+        description: Actual treatment (same values as adsl.TRT01A).
+      - name: PARAMCD
+        type: string
+        description: >
+          Parameter code, e.g. ALT, AST, BILI, CREAT, HGB, PLAT, WBC,
+          SODIUM, POTAS, GLUC.
+      - name: PARAM
+        type: string
+        description: Parameter name with units.
+      - name: AVAL
+        type: number
+        description: Analysis value in standard units.
+      - name: BASE
+        type: number
+        description: Baseline value.
+      - name: CHG
+        type: number
+        description: Change from baseline.
+      - name: ANRIND
+        type: string
+        description: Analysis reference-range indicator (LOW, NORMAL, HIGH).
+      - name: BNRIND
+        type: string
+        description: Baseline reference-range indicator (LOW, NORMAL, HIGH).
+      - name: ATOXGR
+        type: string
+        description: Analysis toxicity grade (CTCAE-style).
+      - name: AVISIT
+        type: string
+        description: Analysis visit label.
+      - name: ADY
+        type: number
+        description: Analysis relative day.
+      - name: ONTRTFL
+        type: string
+        description: On-treatment record flag ('Y' or missing).
+      - name: ABLFL
+        type: string
+        description: Baseline record flag ('Y' or missing).
+      - name: SAFFL
+        type: string
+        description: Safety population flag ('Y'/'N').
+    definitions:
+      - name: on_treatment
+        label: On-treatment record
+        description: Record collected during the on-treatment period.
+        expr: ONTRTFL = 'Y'
+
+  - name: ADTTE
+    description: >
+      Time-to-event analysis dataset (ADaM ADTTE) for study CDISCPILOT01.
+      One row per subject per time-to-event parameter; currently the only
+      parameter is TTDE (time to first dermatologic event), derived from
+      the first treatment-emergent dermatologic adverse event in ADAE
+      (SRCDOM = 'ADAE'), or censored at study completion if no such event
+      occurred. Joins to adsl on USUBJID.
+    columns:
+      - name: USUBJID
+        type: string
+        description: Unique subject identifier; joins to adsl.
+      - name: PARAMCD
+        type: string
+        description: >
+          Time-to-event parameter code. Currently only 'TTDE' (time to
+          first dermatologic event).
+      - name: PARAM
+        type: string
+        description: >
+          Time-to-event parameter name, e.g. "Time to First Dermatologic
+          Event".
+      - name: TRTA
+        type: string
+        description: Actual treatment arm (same values as adsl.TRT01A).
+      - name: TRTP
+        type: string
+        description: Planned treatment arm.
+      - name: TRTAN
+        type: number
+        description: Numeric code for TRTA.
+      - name: AGE
+        type: number
+        description: Age in years at baseline (duplicated from adsl for convenience).
+      - name: AGEGR1
+        type: string
+        description: Pooled age group (duplicated from adsl for convenience).
+      - name: RACE
+        type: string
+        description: Race (duplicated from adsl for convenience).
+      - name: SEX
+        type: string
+        description: Sex ('M'/'F') (duplicated from adsl for convenience).
+      - name: AVAL
+        type: number
+        description: >
+          Analysis value: time to the dermatologic event or to censoring,
+          in days, measured from STARTDT.
+      - name: CNSR
+        type: number
+        description: >
+          Censor indicator. 0 = event observed (a dermatologic AE
+          occurred); 1 = censored (no dermatologic AE observed by study
+          completion).
+      - name: EVNTDESC
+        type: string
+        description: >
+          Event or censoring description: "Dematologic Event Occured"
+          [sic -- source data has this typo] when CNSR = 0, or "Study
+          Completion Date" when CNSR = 1.
+      - name: SRCDOM
+        type: string
+        description: Source domain the event/censoring date was derived from (e.g. ADAE, ADSL).
+      - name: SRCVAR
+        type: string
+        description: Source variable the event/censoring date was derived from (e.g. ASTDT, RFENDT).
+      - name: STARTDT
+        type: date
+        description: Date analysis time is measured from (treatment start).
+      - name: ADT
+        type: date
+        description: Date of the event or censoring.
+      - name: SAFFL
+        type: string
+        description: Safety population flag ('Y'/'N').
+    definitions:
+      - name: observed_event
+        label: Observed dermatologic event
+        description: >
+          Record where a treatment-emergent dermatologic adverse event was
+          actually observed, not censored.
+        expr: CNSR = 0
+      - name: censored
+        label: Censored record
+        description: >
+          Record where the subject completed the study without a
+          dermatologic AE; AVAL reflects time to censoring, not time to
+          event.
+        expr: CNSR = 1

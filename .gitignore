@@ -1,0 +1,27 @@
+# Environment / secrets
+.Renviron
+.Renviron.*
+.env
+.env.*
+
+# R session / history
+.Rhistory
+.RData
+.Rproj.user/
+
+# renv library (keep renv.lock, ignore local package cache/library)
+renv/library/
+renv/local/
+renv/staging/
+renv/python/
+renv/sandbox/
+
+# Posit Publisher local metadata (deployment records can contain env-specific info)
+.posit/publish/deployments/
+
+# Assistant / chat local state (conversation history, not project code)
+.shinychat/
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
